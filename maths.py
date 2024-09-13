@@ -2,35 +2,46 @@ import math
 
 from sympy import sympify, simplify, symbols, solve
 import numpy
+from sympy.series.formal import solve_de
 
 list_of_letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
                    "u", "v", "w", "x", "y", "z"]
 numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
-def calculator(eq):
-    # TODO: ADD POSSIBILITY OF MULTIPLE X'S
-    # TODO: ADD POSSIBILITY OF X JUST BEING X, AND MAKE IT 1 * X
-    # TODO: ADD CASES FOR THE REST OF THE OPERATORS
-    # DONE: MULTIPLICATION DIVISION ADDITION SUBTRACTION POWER
-    eq = eq.replace("=", ",")
-    eq = eq.replace("^", "**")
-    if eq.find("x") != -1:
-        # find location of x
-        locs = eq.find("x")
-        # insert multiplication symbol
-        if eq[locs - 1] == "*":
-            solved_equation = solve(sympify("Eq(" + eq+ ")"))
-            return solved_equation
-        if eq[locs - 1] in numbers:
-            eq = eq[0:locs] + "*" + eq[locs:len(eq)]
-        else:
-            eq[locs] = "1*x"
+def change_x_multiplication(eq):
+    new_eq = ""
 
-        #return
-        solved_equation = solve(sympify("Eq(" + eq + ")"))
-        return solved_equation
-    else:
-        return eval(eq)
+    for i in range(eq.count("x")):
+        # find location of x
+        loc = eq.find("x")
+
+        if loc == 0:  # case if equation starts with x, like x + 12 becomes 1*x + 12
+            new_eq += eq[:loc] + "1*x"
+
+        elif eq[loc - 1] not in numbers:  # case where it's just x in the middle of the equation
+            new_eq += eq[:loc] + "1*x"
+
+        else:  # case where it is something like 12x, becomes 12 * x
+            # add from the beginning of the equation to the character before x, + "*x"
+            new_eq += eq[:loc] + "*x"
+
+        # remove x just iterated upon
+        eq = eq[loc + 1:]
+
+    return new_eq
+
+def calculator(eq):
+    # TODO: ADD SIN COS TAN WITH MATH
+    # TODO: ADD POSSIBILITY OF X ON EQUATION SIDE
+    eq = eq.replace(" ", "").replace("=", ",").replace("^", "**")
+    answer_side = eq[eq.find(","):]
+    new_eq = change_x_multiplication(eq)
+
+    # finish equation
+    solved_equation = solve(sympify("Eq(" + new_eq + answer_side + ")"))
+
+    return solved_equation
+
 
 
 def simplify_equation(eq):
@@ -56,18 +67,30 @@ def mult_matrix(mat, constant):
 def mult_matrix_by_matrix(a, b):
     return numpy.dot(a, b)
 
-def make_table(x_start, x_end, equation):
-    table = {}
-    for i in range(x_start, x_end + 1):
-        table[i] = eval(equation.replace("x", str(i)))
-    return table
 
-def distance_calculator(x_1, y_1, x_2, y_2):
-    return math.sqrt((x_1 - x_2)**2 + (y_1 - y_2)**2)
+def distance_calculator(points):
+    # points = [x.1, y.1, x.2, y.2]
+    points = list(points)
 
-def midpoint_calculator(x_1, y_1, x_2, y_2):
+    # convert all from string to int, once again, because of python bullshittery
+    for i in range(len(points)):
+        points[i] = int(points[i])
+
+    return math.sqrt((points[2] - points[0])**2 + (points[3] - points[1])**2)
+
+def midpoint_calculator(points):
+    # points = [x.1, y.1, x.2, y.2]
+
+    # convert to list because of python bullshittery
+    points = list(points)
+
+    # convert all from string to int, once again, because of python bullshittery
+    for i in range(len(points)):
+        points[i] = int(points[i])
+
+    # actually do the math
     midpoint = [
-        (x_1 + x_2)/2, (y_1 + y_2)/2
+        (points[0] + points[2])/2, (points[1] + points[3])/2
     ]
     return midpoint
 

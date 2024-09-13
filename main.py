@@ -8,8 +8,6 @@ import maths_folder.maths_file
 import physics_folder.physics_file
 import calculator_folder.calculator_rendition2_file
 
-import maths
-
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
