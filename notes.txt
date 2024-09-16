@@ -1,0 +1,4 @@
+start compiling notes here next period
+make a big file with just a bunch of notes that can be sorted through
+maybe a search ?
+definitely a filter by, capable if sorted manually in lists?

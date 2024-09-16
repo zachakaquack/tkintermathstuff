@@ -48,7 +48,7 @@ class LeftSide(ctk.CTkFrame):
     def __init__(self, master, calculator2, clipboard):
         super().__init__(master)
 
-        self.running_equation = StringVar(value="12x^2 = 6")
+        self.running_equation = StringVar(value="2x + 4 = 18")
         self.calculator2 = calculator2
 
         self.left_side_frame = CTkFrame(master, fg_color="transparent")
@@ -113,7 +113,7 @@ class ActualCalculator(ctk.CTkFrame):
         self.answer.set(maths.distance_calculator(points))
 
     def generate_table(self, information):
-        self.left_side.calculator2.right_side.right_side_above.right_side_above_table_generator.load_table_frame()
+        self.left_side.calculator2.right_side.right_side_above.right_side_above_table_generator.switch_to_second_page()
 
 class CalculatorScreen(ctk.CTkFrame):
     def __init__(self, master, running_equation, answer):
@@ -394,12 +394,12 @@ class RightSideAboveDropdown(ctk.CTkFrame):
             case "Distance Calculator":
                 self.right_side_above.right_side_above_distance_calculator.load_distance_calculator()
             case "Table Generator":
-                self.right_side_above.right_side_above_table_generator.load_table_generator()
+                self.right_side_above.right_side_above_table_generator.load_entire_table_generator()
 
     def unload_all(self):
         self.right_side_above.right_side_above_midpoint_calculator.unload_midpoint_calculator()
         self.right_side_above.right_side_above_distance_calculator.unload_distance_calculator()
-        self.right_side_above.right_side_above_table_generator.unload_table_generator()
+        self.right_side_above.right_side_above_table_generator.unload_entire_table_generator()
 
 class RightSideAboveMidpointCalculator(ctk.CTkFrame):
     def __init__(self, master, equation_example_font, enter_variable_font):
@@ -568,67 +568,113 @@ class RightSideAboveTableGenerator(ctk.CTkFrame):
     def __init__(self, master, equation_example_font, enter_variable_font):
         super().__init__(master)
 
+        self.x_values = []
+        self.y_values = []
+        self.rows = []
         self.equation_example_font = equation_example_font
         self.enter_variable_font = enter_variable_font
         self.button_font = CTkFont(family="Calibri", size=24)
 
-        # TODO: EQUATION SOLVER ONLY ACCEPTS ONE TERM, DOES NOT ACCEPT THE +4 BELOW FOR SOME REASON
+        self.low_value = StringVar(value="0")
+        self.high_value = StringVar(value="0")
+        self.equation = StringVar(value="y=x")
 
-        self.low_value = StringVar(value="-4")
-        self.high_value = StringVar(value="1")
-        self.equation = StringVar(value="y=2x + 4")
+        self.right_side_above_entire_table_generator = CTkFrame(master, fg_color="transparent")
+        self.right_side_above_entire_table_generator.rowconfigure(0, weight=1, uniform="a")
+        self.right_side_above_entire_table_generator.columnconfigure(0, weight=1, uniform="a")
 
-        self.right_side_above_table_generator = CTkFrame(master, fg_color="white")
-        self.right_side_above_table_generator.rowconfigure(0, weight=1, uniform="a")
-        self.right_side_above_table_generator.columnconfigure(0, weight=1, uniform="a")
+
+        self.right_side_above_table_generator = CTkFrame(self.right_side_above_entire_table_generator, fg_color="transparent")
+        self.right_side_above_table_generator.rowconfigure((0, 1), weight=1, uniform="a")
+        self.right_side_above_table_generator.columnconfigure((0, 1, 2), weight=1, uniform="a")
+
+        self.low_value_label = CTkLabel(self.right_side_above_table_generator, text="Low Value", font=self.enter_variable_font)
+        self.low_value_label.grid(row=0, column=0, sticky="nsew")
+
+        self.low_value_entry = CTkEntry(self.right_side_above_table_generator, textvariable=self.low_value, font=self.enter_variable_font, justify="center")
+        self.low_value_entry.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+
+
+        self.high_value_label = CTkLabel(self.right_side_above_table_generator, text="High Value", font=self.enter_variable_font)
+        self.high_value_label.grid(row=0, column=1, sticky="nsew")
+
+        self.high_value_entry = CTkEntry(self.right_side_above_table_generator, textvariable=self.high_value, font=self.enter_variable_font, justify="center")
+        self.high_value_entry.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
+
+
+        self.equation_label = CTkLabel(self.right_side_above_table_generator, text="Equation", font=self.enter_variable_font)
+        self.equation_label.grid(row=0, column=2, sticky="nsew")
+
+        self.equation_entry = CTkEntry(self.right_side_above_table_generator, textvariable=self.equation, font=self.enter_variable_font, justify="center")
+        self.equation_entry.grid(row=1, column=2, sticky="nsew", padx=20, pady=20)
+
+
+        # -------- PAGE 2 --------
+
+
+        self.table_generator_frame = CTkFrame(self.right_side_above_entire_table_generator, fg_color="#b2b2b2")
+
+        self.table_generator_frame.columnconfigure((0, 1), weight=1, uniform="a")
+
+
+        self.back_from_table_button = CTkButton(self.table_generator_frame, command=self.switch_to_first_page,
+                                                text="Input New Equation", font=self.button_font)
+
+
+    def unload_entire_table_generator(self):
+        self.right_side_above_entire_table_generator.grid_forget()
+
+    def load_entire_table_generator(self):
+        self.right_side_above_entire_table_generator.grid(row=1, column=0, sticky="nsew")
+        self.switch_to_first_page()
+
+    def switch_to_first_page(self):
+        self.table_generator_frame.grid_forget()
+        self.right_side_above_table_generator.grid(row=0, column=0, sticky="nsew")
+
+    def switch_to_second_page(self):
+        self.right_side_above_table_generator.grid_forget()
+        self.table_generator_frame.grid(row=0, column=0, sticky="nsew")
+        self.make_second_page()
+
+    def get_table_information(self):
+        return self.low_value.get(), self.high_value.get(), self.equation.get()
+
+    def make_second_page(self):
+
+        # reset for new page
+        self.x_values = []
+        self.y_values = []
+        self.rows = []
 
         # generate x values (range from lowest value to highest value)
-        self.x_values = []
         for i in range(int(self.low_value.get()), int(self.high_value.get()) + 1):
             self.x_values.append(str(i))
 
         # generate answers (substitute x value in for equation and add to list)
-        self.y_values = []
         for i in range(len(self.x_values)):
             self.y_values.append(self.solve_for(self.x_values[i], self.equation.get().replace("y=", "")))
 
         # generate amount of rows
-        rows = []
         for i in range(len(self.x_values)):
-            rows.append(i)
+            self.rows.append(i)
 
-        self.table_generator_frame = CTkFrame(self.right_side_above_table_generator, fg_color="gray")
-        self.table_generator_frame.rowconfigure(rows, weight=2, uniform="a")
-        self.table_generator_frame.rowconfigure(len(rows), weight=1, uniform="a")
-        self.table_generator_frame.columnconfigure((0, 1), weight=1, uniform="a")
+        # configure rows to amount needed
+        self.table_generator_frame.rowconfigure(self.rows, weight=1, uniform="a")
 
-
+        # generate each entry in row
         for i in range(len(self.x_values)):
             x_data = StringVar(value="x = " + self.x_values[i])
             y_data = StringVar(value="y = " + self.y_values[i])
-            CTkLabel(self.table_generator_frame, textvariable=x_data, font=self.enter_variable_font).grid(row=i, column=0, sticky="nsew")
-            CTkLabel(self.table_generator_frame, textvariable=y_data, font=self.enter_variable_font).grid(row=i, column=1, sticky="nsew")
+            CTkLabel(self.table_generator_frame, textvariable=x_data, font=self.enter_variable_font).grid(row=i,
+                                                                                                          column=0,
+                                                                                                          sticky="nsew")
+            CTkLabel(self.table_generator_frame, textvariable=y_data, font=self.enter_variable_font).grid(row=i,
+                                                                                                          column=1,
+                                                                                                          sticky="nsew")
 
-        self.back_from_table_button = CTkButton(self.table_generator_frame, command=self.unload_table_frame, text="Input New Equation", font=self.button_font)
+        # make back button
         self.back_from_table_button.grid(row=len(self.x_values), column=1, sticky="nsew", padx=50, pady=10)
-
-
-    def load_table_generator(self):
-        self.right_side_above_table_generator.grid(row=1, column=0, sticky="nsew")
-
-
-    def unload_table_generator(self):
-        self.right_side_above_table_generator.grid_forget()
-
-    def load_table_frame(self):
-        self.table_generator_frame.grid(row=0, column=0, sticky="nsew")
-
-    def unload_table_frame(self):
-        self.load_table_generator()
-        self.table_generator_frame.grid_forget()
-
-    def get_table_information(self):
-        return self.low_value.get(), self.high_value.get(), self.equation.get()
 
     def solve_for(self, value, eq):
         new_eq = maths.change_x_multiplication(eq).replace("x", value)
@@ -651,10 +697,10 @@ class RightSideBelow(ctk.CTkFrame):
         self.right_side_below_frame.rowconfigure((0, 1), weight=1, uniform="a")
         self.right_side_below_frame.columnconfigure((0, 1, 2, 3), weight=1, uniform="a")
 
-        self.right_side_below_copy_equation_button = ctk.CTkButton(self.right_side_below_frame,text="Copy Equation", command=lambda: print("copy"))
-        self.right_side_below_paste_end_running = ctk.CTkButton(self.right_side_below_frame,text="Paste To End", command=lambda: print("end of running"))
-        self.right_side_below_generate_idk = ctk.CTkButton(self.right_side_below_frame,text="Generate Equation", command=lambda: print("generate"))
-        self.right_side_below_enter = ctk.CTkButton(self.right_side_below_frame, text="Calculate", command=self.send_to_calculator)
+        self.right_side_below_copy_equation_button = CTkButton(self.right_side_below_frame,text="Copy Equation", command=lambda: print("copy"))
+        self.right_side_below_paste_end_running = CTkButton(self.right_side_below_frame,text="Paste To End", command=lambda: print("end of running"))
+        self.right_side_below_generate_idk = CTkButton(self.right_side_below_frame,text="Generate Equation", command=lambda: print("generate"))
+        self.right_side_below_enter = CTkButton(self.right_side_below_frame, text="Calculate", command=self.send_to_calculator)
 
         self.right_side_below_copy_equation_button.grid(row=1, column=0, sticky="nsew")
         self.right_side_below_paste_end_running.grid(row=1, column=1, sticky="nsew")

@@ -1,4 +1,5 @@
 import math
+from webbrowser import Error
 
 from sympy import sympify, simplify, symbols, solve
 import numpy
@@ -33,14 +34,18 @@ def change_x_multiplication(eq):
 def calculator(eq):
     # TODO: ADD SIN COS TAN WITH MATH
     # TODO: ADD POSSIBILITY OF X ON EQUATION SIDE
-    eq = eq.replace(" ", "").replace("=", ",").replace("^", "**")
-    answer_side = eq[eq.find(","):]
-    new_eq = change_x_multiplication(eq)
+    # TODO: ADD MULTIPLE TERMS? IDK
+    try:
+        eq = eq.replace(" ", "").replace("=", ",").replace("^", "**")
+        answer_side = eq[eq.find(","):]
+        new_eq = change_x_multiplication(eq)
 
-    # finish equation
-    solved_equation = solve(sympify("Eq(" + new_eq + answer_side + ")"))
+        # finish equation
+        solved_equation = solve(sympify("Eq(" + new_eq + answer_side + ")"))
 
-    return solved_equation
+        return solved_equation
+    except TypeError:
+        return "ERROR"
 
 
 
