@@ -48,7 +48,7 @@ class LeftSide(ctk.CTkFrame):
     def __init__(self, master, calculator2, clipboard):
         super().__init__(master)
 
-        self.running_equation = StringVar(value="2x + 4 = 18")
+        self.running_equation = StringVar(value="4x + 4 = 8x")
         self.calculator2 = calculator2
 
         self.left_side_frame = CTkFrame(master, fg_color="transparent")
