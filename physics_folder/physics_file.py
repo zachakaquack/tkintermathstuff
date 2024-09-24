@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import settings
+import maths
 
 class Physics(ctk.CTkFrame):
     def __init__(self, master, home_frame, font):
@@ -16,6 +17,8 @@ class Physics(ctk.CTkFrame):
     def start_physics_page(self):
             print("start_physics_page")
             self.frame.pack(expand=True, fill="both")
+
+
 
     def physics_go_back(self):
         self.home_frame.pack(fill="both", expand=True)

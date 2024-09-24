@@ -1,5 +1,4 @@
-from tkinter import StringVar, BooleanVar, IntVar, DoubleVar
-from tokenize import String
+from tkinter import StringVar, BooleanVar
 
 import customtkinter as ctk
 from customtkinter import CTkFrame, CTkButton, CTkFont, CTkLabel, CTkEntry, CTkComboBox

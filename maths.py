@@ -3,6 +3,7 @@ from webbrowser import Error
 
 from sympy import sympify, simplify, symbols, solve
 import numpy
+from sympy.physics.units import meter
 from sympy.series.formal import solve_de
 
 list_of_letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
@@ -204,3 +205,67 @@ def find_intercepts(x1, y1, x2, y2):
 
     return c / m, c
 
+# physics basic kinematics
+
+def delta(v_naught, time, acceleration):
+    return (v_naught*time) + ((1/2 * acceleration) * (time**2))
+
+def v_final_squared_single(v_naught, delta):
+    return v_naught**2 + (2 * -9.81) * delta
+
+def v_final_single(v_naught, acceleration, time):
+    return v_naught + (acceleration * time)
+
+def v_final_double(v_final_x, v_final_y):
+    return math.sqrt(v_final_x**2 + v_final_y**2)
+
+def impact_angle(v_final_x, v_final_y):
+    return math.degrees(math.atan(v_final_y / v_final_x))
+
+def time_at_highest_point(v_naught):
+    return -v_naught/-9.81
+
+def time_until_hitting_ground(delta_y):
+    return math.sqrt(-delta_y / -4.905)
+
+def find_x_naught(meters_per_sec, theta):
+    theta = math.radians(theta)
+    return meters_per_sec * math.cos(theta)
+
+def find_y_naught(meters_per_sec, theta):
+    theta = math.radians(theta)
+    return meters_per_sec * math.sin(theta)
+
+def find_v_naughts(meters_per_sec, theta):
+    return find_x_naught(meters_per_sec, theta), find_y_naught(meters_per_sec, theta)
+
+
+# physics angular stuffs
+
+def find_tangential_velocity(omega, radius):
+    # omega = angular speed
+    return omega * radius
+
+def find_period_tangential(radius, tangential_velocity):
+    return (2*math.pi * radius)/tangential_velocity
+
+def find_period_omega(radius, omega):
+    # omega = angular speed
+    return (2 * math.pi)/omega
+
+def find_omega(radius):
+    return (2 * math.pi)/radius
+
+def find_centripetal_acceleration_tangential_velocity(tangential_velocity, radius):
+    return tangential_velocity**2 / radius
+
+def find_centripetal_acceleration_omega(omega, radius):
+    return omega**2 / radius
+
+def find_final_angular_speed(omega_naught, alpha, time):
+    # omega = angular speed
+    # alpha = angular acceleration
+    return omega_naught + alpha * time
+
+def find_arc_length(theta, radius):
+    return theta * radius
