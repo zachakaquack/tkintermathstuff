@@ -1,10 +1,11 @@
 import math
 from webbrowser import Error
 
-from sympy import sympify, simplify, symbols, solve
+from sympy import sympify, simplify, symbols, solve, Float
 import numpy
 from sympy.physics.units import meter
 from sympy.series.formal import solve_de
+from sympy.sets.sets import set_mul
 
 list_of_letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
                    "u", "v", "w", "x", "y", "z"]
@@ -205,9 +206,16 @@ def find_intercepts(x1, y1, x2, y2):
 
     return c / m, c
 
+
+
+
 # physics basic kinematics
 
 def delta(v_naught, time, acceleration):
+    v_naught = Float(v_naught)
+    time = Float(time)
+    acceleration = Float(acceleration)
+
     return (v_naught*time) + ((1/2 * acceleration) * (time**2))
 
 def v_final_squared_single(v_naught, delta):
@@ -223,6 +231,7 @@ def impact_angle(v_final_x, v_final_y):
     return math.degrees(math.atan(v_final_y / v_final_x))
 
 def time_at_highest_point(v_naught):
+    v_naught = Float(v_naught)
     return -v_naught/-9.81
 
 def time_until_hitting_ground(delta_y):

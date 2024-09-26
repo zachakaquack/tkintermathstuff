@@ -1,7 +1,9 @@
-from tkinter import StringVar, BooleanVar
+import math
+from tkinter import StringVar, BooleanVar, IntVar, DoubleVar
+from tokenize import String
 
 import customtkinter as ctk
-from customtkinter import CTkFrame, CTkButton, CTkFont, CTkLabel, CTkEntry, CTkComboBox
+from customtkinter import CTkFrame, CTkButton, CTkFont, CTkLabel, CTkEntry, CTkComboBox, CTkTextbox
 
 import maths
 import settings
@@ -34,8 +36,9 @@ class Calculator2(ctk.CTkFrame):
 
 
     def calculator_go_back(self):
-        self.frame.pack_forget()
-        self.home_frame.pack(fill="both", expand=True)
+        print("back")
+        # self.frame.pack_forget()
+        # self.home_frame.pack(fill="both", expand=True)
 
 
 # LEFT SIDE
@@ -47,7 +50,7 @@ class LeftSide(ctk.CTkFrame):
     def __init__(self, master, calculator2, clipboard):
         super().__init__(master)
 
-        self.running_equation = StringVar(value="4x + 4 = 8x")
+        self.running_equation = StringVar(value="")
         self.calculator2 = calculator2
 
         self.left_side_frame = CTkFrame(master, fg_color="transparent")
@@ -67,7 +70,7 @@ class ActualCalculator(ctk.CTkFrame):
         self.left_side = left_side
 
         self.running_equation = running_equation
-        self.answer = StringVar(value="answer")
+        self.answer = StringVar(value="")
         self.second_true = BooleanVar(value=False)
 
         self.bigger_font = CTkFont(family=settings.FONT_FAMILY, size=60)
@@ -91,10 +94,11 @@ class ActualCalculator(ctk.CTkFrame):
         self.answer.set("")
 
     def answer_equation(self):
-        try:
-            self.set_answer_to_label(maths.calculator(self.running_equation.get()))
-        except SyntaxError:
-            self.set_answer_to_label("ERROR")
+        if self.running_equation.get() != "":
+            try:
+                self.set_answer_to_label(maths.calculator(self.running_equation.get()))
+            except SyntaxError:
+                self.set_answer_to_label("ERROR")
 
     def switch_second(self):
         self.second_true.set(not self.second_true.get())
@@ -113,6 +117,14 @@ class ActualCalculator(ctk.CTkFrame):
 
     def generate_table(self, information):
         self.left_side.calculator2.right_side.right_side_above.right_side_above_table_generator.switch_to_second_page()
+
+    def calculate_delta(self, values):
+        delta = maths.delta(values[0], values[1], values[2])
+        self.answer.set(round(delta, 6))
+
+    def calculate_time_at_peak(self, value):
+        peak = maths.time_at_highest_point(value)
+        return self.answer.set(round(peak, 6))
 
 class CalculatorScreen(ctk.CTkFrame):
     def __init__(self, master, running_equation, answer):
@@ -329,6 +341,10 @@ class RightSide(ctk.CTkFrame):
                 return self.right_side_above.right_side_above_distance_calculator.get_distance_points()
             case "Table Generator":
                 return self.right_side_above.right_side_above_table_generator.get_table_information()
+            case "Delta Calculator":
+                return self.right_side_above.right_side_above_delta_calculator.get_values()
+            case "Find Time at Peak":
+                return self.right_side_above.right_side_above_find_time_at_peak.get_values()
 
 
 class RightSideAbove(ctk.CTkFrame):
@@ -352,6 +368,8 @@ class RightSideAbove(ctk.CTkFrame):
         self.right_side_above_midpoint_calculator = RightSideAboveMidpointCalculator(self.right_side_above_frame, self.equation_example_font, self.enter_variable_font)
         self.right_side_above_distance_calculator = RightSideAboveDistanceCalculator(self.right_side_above_frame, self.equation_example_font, self.enter_variable_font)
         self.right_side_above_table_generator = RightSideAboveTableGenerator(self.right_side_above_frame, self.equation_example_font, self.enter_variable_font)
+        self.right_side_above_delta_calculator = RightSideAbovePhysicsDeltaCalculator(self.right_side_above_frame)
+        self.right_side_above_find_time_at_peak = RightSideAboveFindTimeAtPeak(self.right_side_above_frame)
 
 
 class RightSideAboveDropdown(ctk.CTkFrame):
@@ -380,7 +398,9 @@ class RightSideAboveDropdown(ctk.CTkFrame):
                                                    "",
                                                    "Midpoint Calculator",
                                                    "Distance Calculator",
-                                                   "Table Generator"
+                                                   "Table Generator",
+                                                   "Delta Calculator",
+                                                   "Find Time at Peak"
                                                ])
 
         self.right_side_dropdown.grid(row=0, column=0, sticky="n", pady=20)
@@ -394,11 +414,17 @@ class RightSideAboveDropdown(ctk.CTkFrame):
                 self.right_side_above.right_side_above_distance_calculator.load_distance_calculator()
             case "Table Generator":
                 self.right_side_above.right_side_above_table_generator.load_entire_table_generator()
+            case "Delta Calculator":
+                self.right_side_above.right_side_above_delta_calculator.load_delta_calculator()
+            case "Find Time at Peak":
+                self.right_side_above.right_side_above_find_time_at_peak.load_peak_calculator()
 
     def unload_all(self):
         self.right_side_above.right_side_above_midpoint_calculator.unload_midpoint_calculator()
         self.right_side_above.right_side_above_distance_calculator.unload_distance_calculator()
         self.right_side_above.right_side_above_table_generator.unload_entire_table_generator()
+        self.right_side_above.right_side_above_delta_calculator.unload_delta_calculator()
+        self.right_side_above.right_side_above_find_time_at_peak.unload_peak_calculator()
 
 class RightSideAboveMidpointCalculator(ctk.CTkFrame):
     def __init__(self, master, equation_example_font, enter_variable_font):
@@ -681,6 +707,102 @@ class RightSideAboveTableGenerator(ctk.CTkFrame):
         return answer
 
 
+class RightSideAbovePhysicsDeltaCalculator(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+
+        self.v_naught = StringVar(value="0.0")
+        self.time = StringVar(value="0.0")
+        self.acceleration = StringVar(value="0.0")
+
+        #print(maths.delta(self.v_naught.get(), self.time.get(), self.acceleration.get()))
+
+        self.equation_example_font = CTkFont(family="Calibiri", size=48, weight="bold")
+        self.enter_variable_font = CTkFont(family="Calibiri", size=32, weight="bold")
+
+        self.right_side_above_delta_calculator = CTkFrame(master, fg_color="transparent")
+
+        self.right_side_above_delta_calculator.rowconfigure((0, 1), weight=1, uniform="a")
+        self.right_side_above_delta_calculator.columnconfigure((0, 1, 2), weight=1, uniform="a")
+
+        # v_naught
+        self.v_naught_label = CTkLabel(self.right_side_above_delta_calculator, text="V_Naught",
+                                       font=self.equation_example_font)
+        self.v_naught_label.grid(row=0, column=0, sticky="nsew")
+
+        self.v_naught_entry = CTkEntry(self.right_side_above_delta_calculator, textvariable=self.v_naught,
+                                       font=self.enter_variable_font, justify="center")
+        self.v_naught_entry.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+        self.v_naught_entry.bind('<FocusIn>',
+                                     lambda x: self.v_naught_entry.select_range(0, len(self.v_naught.get())))
+
+        # time
+        self.time_label = CTkLabel(self.right_side_above_delta_calculator, text="Time",
+                                       font=self.equation_example_font)
+        self.time_label.grid(row=0, column=1, sticky="nsew")
+
+        self.time_entry = CTkEntry(self.right_side_above_delta_calculator, textvariable=self.time,
+                                       font=self.enter_variable_font, justify="center")
+        self.time_entry.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
+        self.time_entry.bind('<FocusIn>',
+                                     lambda x: self.time_entry.select_range(0, len(self.time.get())))
+
+        # acceleration
+        self.acceleration_label = CTkLabel(self.right_side_above_delta_calculator, text="Acceleration",
+                                       font=self.equation_example_font)
+        self.acceleration_label.grid(row=0, column=2, sticky="nsew")
+
+        self.acceleration_entry = CTkEntry(self.right_side_above_delta_calculator, textvariable=self.acceleration,
+                                       font=self.enter_variable_font, justify="center")
+        self.acceleration_entry.grid(row=1, column=2, sticky="nsew", padx=20, pady=20)
+        self.acceleration_entry.bind('<FocusIn>', lambda x: self.acceleration_entry.select_range(0, len(self.acceleration.get())))
+
+
+
+    def load_delta_calculator(self):
+        self.right_side_above_delta_calculator.grid(row=1, column=0, sticky="nsew")
+
+    def unload_delta_calculator(self):
+        self.right_side_above_delta_calculator.grid_forget()
+
+    def get_values(self):
+        return self.v_naught.get(), self.time.get(), self.acceleration.get()
+
+class RightSideAboveFindTimeAtPeak(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+
+        self.v_naught = StringVar(value="0.0")
+
+        self.equation_example_font = CTkFont(family="Calibiri", size=48, weight="bold")
+        self.enter_variable_font = CTkFont(family="Calibiri", size=32, weight="bold")
+
+        self.right_side_above_find_time_at_peak = CTkFrame(master, fg_color="transparent")
+
+        self.right_side_above_find_time_at_peak.rowconfigure((0, 1), weight=1, uniform="a")
+        self.right_side_above_find_time_at_peak.columnconfigure((0, 1, 2), weight=1, uniform="a")
+
+        # v_naught
+        self.v_naught_label = CTkLabel(self.right_side_above_find_time_at_peak, text="V_Naught",
+                                       font=self.equation_example_font)
+        self.v_naught_label.grid(row=0, column=1, sticky="nsew")
+
+        self.v_naught_entry = CTkEntry(self.right_side_above_find_time_at_peak, textvariable=self.v_naught,
+                                       font=self.enter_variable_font, justify="center")
+        self.v_naught_entry.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
+        self.v_naught_entry.bind('<FocusIn>',
+                                     lambda x: self.v_naught_entry.select_range(0, len(self.v_naught.get())))
+
+
+    def load_peak_calculator(self):
+        self.right_side_above_find_time_at_peak.grid(row=1, column=0, sticky="nsew")
+
+    def unload_peak_calculator(self):
+        self.right_side_above_find_time_at_peak.grid_forget()
+
+    def get_values(self):
+        return self.v_naught.get()
+
 
 class RightSideBelow(ctk.CTkFrame):
     def __init__(self, master, current_preset_calculation, calculator, right_side):
@@ -714,3 +836,8 @@ class RightSideBelow(ctk.CTkFrame):
                 self.calculator.distance_calculator(self.right_side.get_information())
             case "Table Generator":
                 self.calculator.generate_table(self.right_side.get_information())
+            case "Delta Calculator":
+                self.calculator.calculate_delta(self.right_side.get_information())
+            case "Find Time at Peak":
+                self.calculator.calculate_time_at_peak(self.right_side.get_information())
+

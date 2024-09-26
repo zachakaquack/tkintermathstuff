@@ -14,7 +14,7 @@ class Math(ctk.CTkFrame):
         self.maths_go_back_button.pack()
 
     def start_maths_page(self):
-            print("start_physics_page")
+            print("matgh")
             self.frame.pack(expand=True, fill="both")
 
     def maths_go_back(self):

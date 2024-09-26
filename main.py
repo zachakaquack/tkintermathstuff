@@ -7,6 +7,7 @@ import calculator_folder.calculator_file
 import maths_folder.maths_file
 import physics_folder.physics_file
 import calculator_folder.calculator_rendition2_file
+import maths
 
 
 
@@ -31,35 +32,35 @@ class App(ctk.CTk):
 
         # traversal buttons
 
-        self.math_tranversal_button = (ctk.CTkButton(self.home_frame,
-
-                                                     text="Math",
-                                                     font=font,
-                                                     corner_radius=90,
-                                                     command=self.make_maths_page)
-                                       .grid(row=0, column=0, sticky="nsew", rowspan=1, padx=45, pady=45))
-
-        self.physics_tranversal_button = (ctk.CTkButton(self.home_frame,
-                                                     text="Physics",
-                                                     font=font,
-                                                     corner_radius=90,
-                                                     command=self.make_physics_page)
-                                       .grid(row=0, column=1, sticky="nsew", rowspan=1, padx=45, pady=45))
-
-        self.calculator_tranversal_button = (ctk.CTkButton(self.home_frame,
-                                                      text="Calculator",
-                                                     font=font,
-                                                     corner_radius=90,
-
-                                                     command=self.make_second_calculator_page)
-                                       .grid(row=1, column=0, sticky="nsew", rowspan=1, padx=45, pady=45))
-
-        self.notes_tranversal_button = (ctk.CTkButton(self.home_frame,
-                                                     text="Notes",
-                                                     font=font,
-                                                     corner_radius=90,
-                                                     command=self.make_notes_page)
-                                       .grid(row=1, column=1, sticky="nsew", rowspan=1, padx=45, pady=45))
+        # self.math_tranversal_button = (ctk.CTkButton(self.home_frame,
+        #
+        #                                              text="Math",
+        #                                              font=font,
+        #                                              corner_radius=90,
+        #                                              command=self.make_maths_page)
+        #                                .grid(row=0, column=0, sticky="nsew", rowspan=1, padx=45, pady=45))
+        #
+        # self.physics_tranversal_button = (ctk.CTkButton(self.home_frame,
+        #                                              text="Physics",
+        #                                              font=font,
+        #                                              corner_radius=90,
+        #                                              command=self.make_physics_page)
+        #                                .grid(row=0, column=1, sticky="nsew", rowspan=1, padx=45, pady=45))
+        #
+        # self.calculator_tranversal_button = (ctk.CTkButton(self.home_frame,
+        #                                               text="Calculator",
+        #                                              font=font,
+        #                                              corner_radius=90,
+        #
+        #                                              command=self.make_second_calculator_page)
+        #                                .grid(row=1, column=0, sticky="nsew", rowspan=1, padx=45, pady=45))
+        #
+        # self.notes_tranversal_button = (ctk.CTkButton(self.home_frame,
+        #                                              text="Notes",
+        #                                              font=font,
+        #                                              corner_radius=90,
+        #                                              command=self.make_notes_page)
+        #                                .grid(row=1, column=1, sticky="nsew", rowspan=1, padx=45, pady=45))
 
         # sections
         self.math = maths_folder.maths_file.Math(self, self.home_frame, font)
@@ -68,7 +69,8 @@ class App(ctk.CTk):
         self.notes = notes_folder.notes_file.NotesApp(self, self.home_frame, font)
         self.calculator2 = calculator_folder.calculator_rendition2_file.Calculator2(self, self.home_frame)
 
-        self.home_frame.pack(fill="both", expand=True)
+        #self.home_frame.pack(fill="both", expand=True)
+        self.make_second_calculator_page()
 
     def remove_home_frame(self):
         self.home_frame.pack_forget()
