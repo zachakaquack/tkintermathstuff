@@ -248,6 +248,45 @@ def find_y_naught(meters_per_sec, theta):
 def find_v_naughts(meters_per_sec, theta):
     return find_x_naught(meters_per_sec, theta), find_y_naught(meters_per_sec, theta)
 
+def kinematics_is_your_friend(height, theta, meters_per_second):
+    # inits
+    height = Float(height)
+    theta = Float(theta)
+    v_naughts = find_v_naughts(Float(meters_per_second), theta)
+
+    # time at highest point
+    time_at_highest = time_at_highest_point(v_naughts[1])
+   # print(time_at_highest)
+
+    # find max height
+    max_height = delta(v_naughts[1], time_at_highest, -9.81) + 300
+
+    # find time
+    time = time_until_hitting_ground(max_height) + time_at_highest
+
+    # delta x
+    delta_x = delta(v_naughts[0], time, 0)
+
+    # v final y
+    v_final_y = v_final_single(v_naughts[1], -9.81, time)
+
+    # v final x
+    v_final_x = v_final_single(v_naughts[0], 0, time)
+
+    # v final
+    v_final = v_final_double(v_final_x, v_final_y)
+
+    # impact upon hitting ground
+    theta = impact_angle(v_final_x, v_final_y)
+
+    print(f"max height: {max_height}\n"
+            f"time: {time}\n"
+            f"delta x: {delta_x}\n"
+            f"v final x: {v_final_x}\n"
+            f"v final y: {v_final_y}\n"
+            f"v final: {v_final}\n"
+            f"theta: {theta}\n")
+
 
 # physics angular stuffs
 

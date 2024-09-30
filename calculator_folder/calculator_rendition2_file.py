@@ -126,6 +126,12 @@ class ActualCalculator(ctk.CTkFrame):
         peak = maths.time_at_highest_point(value)
         return self.answer.set(round(peak, 6))
 
+    def kinematics_friend(self, values):
+        if values is None:
+            return
+        else:
+            maths.kinematics_is_your_friend(values[0], values[1], values[2])
+
 class CalculatorScreen(ctk.CTkFrame):
     def __init__(self, master, running_equation, answer):
         super().__init__(master)
@@ -345,6 +351,8 @@ class RightSide(ctk.CTkFrame):
                 return self.right_side_above.right_side_above_delta_calculator.get_values()
             case "Find Time at Peak":
                 return self.right_side_above.right_side_above_find_time_at_peak.get_values()
+            case "Kinematics is Your Friend":
+                return self.right_side_above.right_side_above_kinematics_friend.get_values()
 
 
 class RightSideAbove(ctk.CTkFrame):
@@ -370,6 +378,7 @@ class RightSideAbove(ctk.CTkFrame):
         self.right_side_above_table_generator = RightSideAboveTableGenerator(self.right_side_above_frame, self.equation_example_font, self.enter_variable_font)
         self.right_side_above_delta_calculator = RightSideAbovePhysicsDeltaCalculator(self.right_side_above_frame)
         self.right_side_above_find_time_at_peak = RightSideAboveFindTimeAtPeak(self.right_side_above_frame)
+        self.right_side_above_kinematics_friend = RightSideAboveKinematicsFriend(self.right_side_above_frame)
 
 
 class RightSideAboveDropdown(ctk.CTkFrame):
@@ -380,7 +389,7 @@ class RightSideAboveDropdown(ctk.CTkFrame):
         self.current_preset_calculation = current_preset_calculation
         self.right_side_above = right_side_above
 
-        self.combobox_font = CTkFont(family="Calibiri", size=32, weight="bold")
+        self.combobox_font = CTkFont(family="Calibiri", size=24, weight="bold")
 
 
         self.right_side_above_dropdown_frame = CTkFrame(master, fg_color="transparent")
@@ -391,8 +400,10 @@ class RightSideAboveDropdown(ctk.CTkFrame):
 
         self.right_side_dropdown = CTkComboBox(self.right_side_above_dropdown_frame,
                                                width=650, height=50, corner_radius=40, font=self.combobox_font,
+                                               dropdown_font=self.combobox_font,
                                                state="readonly",
                                                variable=self.current_preset_calculation,
+                                               justify="center",
                                                command=lambda x: self.do_loading(),
                                                values=[
                                                    "",
@@ -400,7 +411,8 @@ class RightSideAboveDropdown(ctk.CTkFrame):
                                                    "Distance Calculator",
                                                    "Table Generator",
                                                    "Delta Calculator",
-                                                   "Find Time at Peak"
+                                                   "Find Time at Peak",
+                                                   "Kinematics is Your Friend"
                                                ])
 
         self.right_side_dropdown.grid(row=0, column=0, sticky="n", pady=20)
@@ -418,6 +430,8 @@ class RightSideAboveDropdown(ctk.CTkFrame):
                 self.right_side_above.right_side_above_delta_calculator.load_delta_calculator()
             case "Find Time at Peak":
                 self.right_side_above.right_side_above_find_time_at_peak.load_peak_calculator()
+            case "Kinematics is Your Friend":
+                self.right_side_above.right_side_above_kinematics_friend.load_kinematic_friends_calculator()
 
     def unload_all(self):
         self.right_side_above.right_side_above_midpoint_calculator.unload_midpoint_calculator()
@@ -425,6 +439,7 @@ class RightSideAboveDropdown(ctk.CTkFrame):
         self.right_side_above.right_side_above_table_generator.unload_entire_table_generator()
         self.right_side_above.right_side_above_delta_calculator.unload_delta_calculator()
         self.right_side_above.right_side_above_find_time_at_peak.unload_peak_calculator()
+        self.right_side_above.right_side_above_kinematics_friend.unload_kinematic_friends_calculator()
 
 class RightSideAboveMidpointCalculator(ctk.CTkFrame):
     def __init__(self, master, equation_example_font, enter_variable_font):
@@ -803,6 +818,66 @@ class RightSideAboveFindTimeAtPeak(ctk.CTkFrame):
     def get_values(self):
         return self.v_naught.get()
 
+class RightSideAboveKinematicsFriend(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+
+        self.height = StringVar(value="0.0")
+        self.theta = StringVar(value="0.0")
+        self.meters_per_second = StringVar(value="0.0")
+
+        self.equation_example_font = CTkFont(family="Calibiri", size=48, weight="bold")
+        self.enter_variable_font = CTkFont(family="Calibiri", size=32, weight="bold")
+
+        self.right_side_above_kinematics_friend = CTkFrame(master, fg_color="transparent")
+
+        self.right_side_above_kinematics_friend.rowconfigure((0, 1), weight=1, uniform="a")
+        self.right_side_above_kinematics_friend.columnconfigure((0, 1, 2), weight=1, uniform="a")
+
+        # height
+        self.height_label = CTkLabel(self.right_side_above_kinematics_friend, text="Height",
+                                     font=self.equation_example_font)
+        self.height_label.grid(row=0, column=0, sticky="nsew")
+
+        self.height_entry = CTkEntry(self.right_side_above_kinematics_friend, textvariable=self.height,
+                                     font=self.enter_variable_font, justify="center")
+        self.height_entry.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+        self.height_entry.bind('<FocusIn>',
+                               lambda x: self.height_entry.select_range(0, len(self.height.get())))
+
+        # theta
+        self.theta_label = CTkLabel(self.right_side_above_kinematics_friend, text="Theta",
+                                    font=self.equation_example_font)
+        self.theta_label.grid(row=0, column=1, sticky="nsew")
+
+        self.theta_entry = CTkEntry(self.right_side_above_kinematics_friend, textvariable=self.theta,
+                                    font=self.enter_variable_font, justify="center")
+        self.theta_entry.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
+        self.theta_entry.bind('<FocusIn>',
+                              lambda x: self.theta_entry.select_range(0, len(self.theta.get())))
+
+        # meters / sec
+        self.meters_per_sec_label = CTkLabel(self.right_side_above_kinematics_friend, text="V Naught",
+                                    font=self.equation_example_font)
+        self.meters_per_sec_label.grid(row=0, column=2, sticky="nsew")
+
+        self.meters_per_sec_entry = CTkEntry(self.right_side_above_kinematics_friend, textvariable=self.meters_per_second,
+                                    font=self.enter_variable_font, justify="center")
+        self.meters_per_sec_entry.grid(row=1, column=2, sticky="nsew", padx=20, pady=20)
+        self.meters_per_sec_entry.bind('<FocusIn>',
+                              lambda x: self.meters_per_sec_entry.select_range(0, len(self.meters_per_second.get())))
+
+
+    def load_kinematic_friends_calculator(self):
+        self.right_side_above_kinematics_friend.grid(row=1, column=0, sticky="nsew")
+
+    def unload_kinematic_friends_calculator(self):
+        self.right_side_above_kinematics_friend.grid_forget()
+
+    def get_values(self):
+        if self.height.get() != "0.0" and self.theta.get() != "0.0" and self.meters_per_second.get() != "0.0":
+            return self.height.get(), self.theta.get(), self.meters_per_second.get()
+
 
 class RightSideBelow(ctk.CTkFrame):
     def __init__(self, master, current_preset_calculation, calculator, right_side):
@@ -840,4 +915,6 @@ class RightSideBelow(ctk.CTkFrame):
                 self.calculator.calculate_delta(self.right_side.get_information())
             case "Find Time at Peak":
                 self.calculator.calculate_time_at_peak(self.right_side.get_information())
+            case "Kinematics is Your Friend":
+                self.calculator.kinematics_friend(self.right_side.get_information())
 
