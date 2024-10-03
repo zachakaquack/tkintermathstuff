@@ -259,7 +259,7 @@ def kinematics_is_your_friend(height, theta, meters_per_second):
    # print(time_at_highest)
 
     # find max height
-    max_height = delta(v_naughts[1], time_at_highest, -9.81) + 300
+    max_height = delta(v_naughts[1], time_at_highest, -9.81) + height
 
     # find time
     time = time_until_hitting_ground(max_height) + time_at_highest

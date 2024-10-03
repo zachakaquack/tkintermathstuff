@@ -1,4 +1,3 @@
-import tkinter as tk
 import customtkinter as ctk
 from customtkinter import CTkFrame, CTkFont
 import settings
@@ -7,7 +6,6 @@ import calculator_folder.calculator_file
 import maths_folder.maths_file
 import physics_folder.physics_file
 import calculator_folder.calculator_rendition2_file
-import maths
 
 
 

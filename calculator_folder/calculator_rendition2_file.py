@@ -1,12 +1,17 @@
-import math
-from tkinter import StringVar, BooleanVar, IntVar, DoubleVar
-from tokenize import String
+from tkinter import StringVar, BooleanVar
 
 import customtkinter as ctk
-from customtkinter import CTkFrame, CTkButton, CTkFont, CTkLabel, CTkEntry, CTkComboBox, CTkTextbox
+from customtkinter import CTkFrame, CTkButton, CTkFont, CTkLabel, CTkEntry, CTkComboBox
+
+
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+NavigationToolbar2Tk)
 
 import maths
 import settings
+from matplotlib.pyplot import autoscale
+from sympy.physics.control.control_plots import matplotlib
 
 
 class Calculator2(ctk.CTkFrame):
@@ -36,14 +41,8 @@ class Calculator2(ctk.CTkFrame):
 
 
     def calculator_go_back(self):
-        print("back")
-        # self.frame.pack_forget()
-        # self.home_frame.pack(fill="both", expand=True)
+        pass
 
-
-# LEFT SIDE
-# LEFT SIDE
-# LEFT SIDE
 # LEFT SIDE
 
 class LeftSide(ctk.CTkFrame):
@@ -115,7 +114,7 @@ class ActualCalculator(ctk.CTkFrame):
     def distance_calculator(self, points):
         self.answer.set(maths.distance_calculator(points))
 
-    def generate_table(self, information):
+    def generate_table(self):
         self.left_side.calculator2.right_side.right_side_above.right_side_above_table_generator.switch_to_second_page()
 
     def calculate_delta(self, values):
@@ -317,9 +316,6 @@ class CalculatorEntry(ctk.CTkFrame):
         self.calculator_entry.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
 
 # RIGHT SIDE
-# RIGHT SIDE
-# RIGHT SIDE
-# RIGHT SIDE
 
 class RightSide(ctk.CTkFrame):
     def __init__(self, master, calculator):
@@ -379,6 +375,7 @@ class RightSideAbove(ctk.CTkFrame):
         self.right_side_above_delta_calculator = RightSideAbovePhysicsDeltaCalculator(self.right_side_above_frame)
         self.right_side_above_find_time_at_peak = RightSideAboveFindTimeAtPeak(self.right_side_above_frame)
         self.right_side_above_kinematics_friend = RightSideAboveKinematicsFriend(self.right_side_above_frame)
+        self.right_side_above_matplotlib = RightSideAboveMatPlotLib(self.right_side_above_frame)
 
 
 class RightSideAboveDropdown(ctk.CTkFrame):
@@ -412,7 +409,8 @@ class RightSideAboveDropdown(ctk.CTkFrame):
                                                    "Table Generator",
                                                    "Delta Calculator",
                                                    "Find Time at Peak",
-                                                   "Kinematics is Your Friend"
+                                                   "Kinematics is Your Friend",
+                                                   "matplotlib"
                                                ])
 
         self.right_side_dropdown.grid(row=0, column=0, sticky="n", pady=20)
@@ -432,6 +430,8 @@ class RightSideAboveDropdown(ctk.CTkFrame):
                 self.right_side_above.right_side_above_find_time_at_peak.load_peak_calculator()
             case "Kinematics is Your Friend":
                 self.right_side_above.right_side_above_kinematics_friend.load_kinematic_friends_calculator()
+            case "matplotlib":
+                self.right_side_above.right_side_above_matplotlib.load_matplotlib()
 
     def unload_all(self):
         self.right_side_above.right_side_above_midpoint_calculator.unload_midpoint_calculator()
@@ -440,6 +440,7 @@ class RightSideAboveDropdown(ctk.CTkFrame):
         self.right_side_above.right_side_above_delta_calculator.unload_delta_calculator()
         self.right_side_above.right_side_above_find_time_at_peak.unload_peak_calculator()
         self.right_side_above.right_side_above_kinematics_friend.unload_kinematic_friends_calculator()
+        self.right_side_above.right_side_above_matplotlib.unload_matplotlib()
 
 class RightSideAboveMidpointCalculator(ctk.CTkFrame):
     def __init__(self, master, equation_example_font, enter_variable_font):
@@ -878,6 +879,90 @@ class RightSideAboveKinematicsFriend(ctk.CTkFrame):
         if self.height.get() != "0.0" and self.theta.get() != "0.0" and self.meters_per_second.get() != "0.0":
             return self.height.get(), self.theta.get(), self.meters_per_second.get()
 
+
+class RightSideAboveMatPlotLib(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+
+        # parent frame
+        self.matplotlib_frame = CTkFrame(master, fg_color="transparent")
+
+        self.matplotlib_frame.rowconfigure(0, weight=1, uniform="a")
+        self.matplotlib_frame.columnconfigure((0, 1), weight=1, uniform="a")
+
+
+        # variables
+
+        self.x = [0.12, 0.28, 0.48, 0.74, 1.10]
+        self.y = [0.15, 0.34, 0.59, 0.92, 1.44]
+
+        self.title = "2Δx vs t**2 Graph"
+
+        self.x_label = "Time Squared (t**2)"
+        self.y_label = "2ΔX (m)"
+
+
+    def load_matplotlib(self):
+        self.matplotlib_frame.grid(row=1, column=0, sticky="nsew")
+
+        self.plot()
+
+    def unload_matplotlib(self):
+        self.matplotlib_frame.grid_forget()
+
+    def plot(self):
+
+        # the figure that will contain the plot
+        fig = Figure()
+
+        # start at 0,0
+        if min(self.x) > 0:
+            self.x.insert(0, 0)
+        if min(self.y) > 0:
+            self.y.insert(0, 0)
+
+        # adding the subplot
+        plot1 = fig.add_subplot(xlabel=self.x_label, ylabel=self.y_label,
+                                xlim=[min(self.x), max(self.x) + (max(self.x) / 3)],
+                                ylim=[min(self.y), max(self.y) + (max(self.y) / 3)])
+
+        # origin lines
+        plot1.hlines(0, xmin=min(self.x), xmax=max(self.x)+ (max(self.x) / 3), color="black")
+        plot1.vlines(0, ymin=min(self.y), ymax=max(self.y)+ (max(self.y) / 3), color="black")
+
+        # make the less important ticks smaller
+        plot1.grid(which="major", linewidth=1.3)
+        plot1.grid(which="minor", linewidth=0.2)
+
+        # turn on the tiny ticks in between
+        plot1.minorticks_on()
+
+        # plotting the line
+        plot1.plot(self.x, self.y, linewidth=1, color="lightpink")
+
+        # plotting the points
+        plot1.plot(self.x, self.y, "o")
+
+        # title
+        plot1.set_title(self.title)
+
+
+        # creating the Tkinter canvas
+        # containing the Matplotlib figure
+        canvas = FigureCanvasTkAgg(fig,
+                                   master=self.matplotlib_frame)
+        canvas.draw()
+
+        # placing the canvas on the Tkinter window
+        canvas.get_tk_widget().pack()
+
+        # creating the Matplotlib toolbar
+        toolbar = NavigationToolbar2Tk(canvas,
+                                       self.matplotlib_frame)
+        toolbar.update()
+
+        # placing the toolbar on the Tkinter window
+        canvas.get_tk_widget().pack()
 
 class RightSideBelow(ctk.CTkFrame):
     def __init__(self, master, current_preset_calculation, calculator, right_side):
